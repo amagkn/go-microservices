@@ -1,1 +1,6 @@
+# directories
 /.idea
+
+# apps
+broker-service/brokerApp
+front-end/frontApp
