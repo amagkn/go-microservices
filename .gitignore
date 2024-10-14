@@ -1,6 +1,8 @@
 # directories
 /.idea
+/project/db-data
 
 # apps
 broker-service/brokerApp
 front-end/frontApp
+authentication-service/authApp
