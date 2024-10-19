@@ -7,6 +7,7 @@
                 <h1 class="mt-5">Test microservices</h1>
                 <hr>
                 <a id="brokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Broker</a>
+                <a id="authBrokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Auth</a>
 
                 <div id="output" class="mt-5" style="outline: 1px solid silver; padding: 2em;">
                     <span class="text-muted">Output shows here...</span>
@@ -33,6 +34,7 @@
 {{define "js"}}
     <script>
         const brokerBtn = document.querySelector("#brokerBtn")
+        const authBrokerBtn = document.querySelector("#authBrokerBtn")
         const output = document.querySelector("#output")
         const payload = document.querySelector("#payload")
         const received = document.querySelector("#received")
@@ -51,7 +53,38 @@
                     output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`
                 }
             } catch (e) {
-                output.innerHTML += `<br/>Error: ${e}`
+                output.innerHTML += `<br><br>Error: ${e}`
+            }
+        })
+
+        authBrokerBtn.addEventListener("click", async () => {
+            const body = {
+                action: "auth",
+                auth: {
+                    email: "admin@example.com",
+                    password: "verysecret!"
+                }
+            }
+
+            try {
+                const res = await fetch("http://localhost:8080/handle", {
+                    method: "POST", body: JSON.stringify(body), headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+
+                const data = await res.json()
+
+                payload.innerHTML = JSON.stringify(body, null, 4)
+                received.innerHTML = JSON.stringify(data, null, 4)
+
+                if (data.error) {
+                    output.innerHTML += `<br><strong>Error</strong>: ${data.message}`
+                } else {
+                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`
+                }
+            } catch (e) {
+                output.innerHTML += `<br><br>Error: ${e}`
             }
         })
     </script>
