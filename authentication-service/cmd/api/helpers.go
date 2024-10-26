@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 const maxBytes = 1048576
@@ -68,4 +70,34 @@ func (app *Config) writeErrorResponse(w http.ResponseWriter, err error, status .
 	payload.Message = err.Error()
 
 	return app.writeResponse(w, statusCode, payload)
+}
+
+func runRequest(method, url string, data any, jsonResponse any) error {
+	jsonData, _ := json.MarshalIndent(data, "", "\t")
+
+	request, err := http.NewRequest(method, url, bytes.NewBuffer(jsonData))
+
+	if err != nil {
+		return err
+	}
+
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusAccepted && response.StatusCode != http.StatusOK {
+		return errors.New(strconv.Itoa(response.StatusCode))
+	}
+
+	err = json.NewDecoder(response.Body).Decode(jsonResponse)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
